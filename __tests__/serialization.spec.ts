@@ -15,7 +15,13 @@ describe('certificate test', ()=>{
     test('test serialization', ()=>{
 
         const data = serialization.serializeCertificate(certificate);
-        expect(data).not.toBeNull();
+        
+        const size = data.length;
+        expect(size).toBeLessThanOrEqual(100);
+        
+        const unpacked = serialization.deserializeCertificate(data);
+
+        expect(unpacked).toEqual(certificate);
     });
 
 })

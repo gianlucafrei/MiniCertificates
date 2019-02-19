@@ -1,4 +1,7 @@
-import * as crypto from "./crypto"
+import {P192SHA256, Crypto, Signature, PrivateKey, PublicKey} from "./crypto"
+
+let suite = P192SHA256;
+let crypto = new Crypto(suite);
 
 export const VERSION = 0;
 
@@ -12,24 +15,25 @@ export interface Certificate{
     version: number,
     subject: string,
     validity: TimePeroid,
-    signature: crypto.Signature
+    signature: Signature
 }
 
-export function newPrivateKey() : crypto.PrivateKey{
+export function newPrivateKey() : PrivateKey{
 
     return crypto.generatePrivateKey();
 }
 
-export function computePublicKeyFromPrivateKey(privateKey: crypto.PrivateKey) : crypto.PublicKey{
+export function computePublicKeyFromPrivateKey(privateKey: PrivateKey, ) : PublicKey{
 
     return crypto.publicFromPrivate(privateKey)
 }
 
 export function signCertificate(
     subjectName: string,
-    subjectPublicKey: crypto.PublicKey,
+    subjectPublicKey: PublicKey,
     validity: TimePeroid,
-    issuerPrivateKey: crypto.PrivateKey) : Certificate{
+    issuerPrivateKey: PrivateKey,
+    ) : Certificate{
 
     const signedData = canocializeSignedData(VERSION, subjectName, subjectPublicKey, validity);
     const signature = crypto.sign(signedData, issuerPrivateKey);
@@ -44,12 +48,18 @@ export function signCertificate(
     return certificate;
 }
 
-export function sign(message: string, privateKey: crypto.PrivateKey) : crypto.Signature{
+export function sign(message: string, privateKey: PrivateKey, ) : Signature{
 
     return crypto.sign(message, privateKey);
 }
 
-export function verifySignature(subjectName: string, message: string, signature: crypto.Signature, certificate: Certificate, caPublicKey: crypto.PublicKey){
+export function verifySignature(
+    subjectName: string,
+    message: string,
+    signature: Signature,
+    certificate: Certificate,
+    caPublicKey: PublicKey,
+    ){
 
     // Calculate the public key which verifies the signature
     const publicKey = crypto.recoverPublicKey(message, signature);
@@ -61,7 +71,11 @@ export function verifySignature(subjectName: string, message: string, signature:
     return isvalid;
 }
 
-function canocializeSignedData(version: number, subjectName: string, subjectPublicKey: crypto.PublicKey, validity: TimePeroid){
+function canocializeSignedData(
+    version: number,
+    subjectName: string,
+    subjectPublicKey: PublicKey,
+    validity: TimePeroid){
 
     return version + "+" +  subjectName + "+" + subjectPublicKey.hash + "+" + validity.start + "+" + validity.end;
 }

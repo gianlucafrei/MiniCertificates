@@ -2,10 +2,6 @@ const EC = require("elliptic").ec;
 const BN = require('bn.js');
 const Hashes = require('jshashes');
 
-const ec = new EC('p192');
-const SHA256 =  new Hashes.SHA256
-const CURVE_LENGHT=192;
-
 export interface PrivateKey{
     /* Private exponent */
     x: string
@@ -24,69 +20,102 @@ export interface Signature{
     j: number
 }
 
-export function privateKeyFromSecret(secret:string) : PrivateKey{
-
-    const keyPair = ec.keyPair({priv: secret});
-    const exponent = keyPair.getPrivate('hex');
-    return {x:exponent};
+export interface Suite {
+    ec,
+    curvelenght: number,
+    hashfunction
 }
 
-export function generatePrivateKey() : PrivateKey{
+export const P192SHA256:Suite = {
 
-    const key = ec.genKeyPair();
-    const exponent = key.getPrivate('hex');
-    
-    return {x:exponent};
+    ec: new EC('p192'),
+    curvelenght: 192,
+    hashfunction: new Hashes.SHA256
 }
 
-export function publicFromPrivate(privateKey : PrivateKey) : PublicKey{
-
-    const keyPair = ec.keyPair({priv: privateKey.x});
-    const pubPointAsString = canonizeCurvePoint(keyPair.getPublic())
-    const hash = hashMessage(pubPointAsString);
-    return {hash: hash}
+export const P256SHA256:Suite={
+    ec: new EC('p256'),
+    curvelenght: 256,
+    hashfunction: new Hashes.SHA256
 }
 
-export function sign(message: string, privateKey : PrivateKey) : Signature{
+export class Crypto{
 
-    const digest = hashMessage(message);
-    const key = ec.keyPair({priv: privateKey.x});
-    const signature = key.sign(digest);
+    suite: Suite;
 
-    return {
-        r: signature.r.toString(16),
-        s: signature.s.toString(16),
-        j: signature.recoveryParam
+    constructor(suite:Suite){
+        this.suite = suite;
     }
-}
 
-export function recoverPublicKey(message: string, signature : Signature) : PublicKey{
 
-    const digest = hashMessage(message);
+    public privateKeyFromSecret(secret:string) : PrivateKey{
 
-    // This is a due to a bug of the elliptic library
-    var digestBase10 = (new BN(digest, 16)).toString()
-
-    var recoveredPoint =  ec.recoverPubKey(digestBase10, signature, signature.j, 'object');
-    var pointAsString = canonizeCurvePoint(recoveredPoint);
-
-    const hash = hashMessage(pointAsString);
-    return {hash: hash}
-}
-
-export function verify(message:string, signature:Signature, publicKey:PublicKey){
+        const keyPair = this.suite.ec.keyPair({priv: secret});
+        const exponent = keyPair.getPrivate('hex');
+        return {x:exponent};
+    };
     
-    const recoveredPubkey = recoverPublicKey(message, signature);
-    return publicKey.hash == recoveredPubkey.hash;
+    public generatePrivateKey() : PrivateKey{
+    
+        const key = this.suite.ec.genKeyPair();
+        const exponent = key.getPrivate('hex');
+        
+        return {x:exponent};
+    }
+    
+    public publicFromPrivate(privateKey: PrivateKey) : PublicKey{
+    
+        const keyPair = this.suite.ec.keyPair({priv: privateKey.x});
+        const pubPointAsString = this.canonizeCurvePoint(keyPair.getPublic())
+        const hash = this.hashMessage(pubPointAsString);
+        return {hash: hash}
+    }
+    
+    public sign(message: string, privateKey: PrivateKey) : Signature{
+    
+        const digest = this.hashMessage(message);
+        const key = this.suite.ec.keyPair({priv: privateKey.x});
+        const signature = key.sign(digest);
+    
+        return {
+            r: signature.r.toString(16),
+            s: signature.s.toString(16),
+            j: signature.recoveryParam
+        }
+    }
+    
+    public recoverPublicKey(message: string, signature: Signature) : PublicKey{
+    
+        const digest = this.hashMessage(message);
+    
+        // This is a due to a bug of the elliptic library
+        var digestBase10 = (new BN(digest, 16)).toString()
+    
+        var recoveredPoint =  this.suite.ec.recoverPubKey(digestBase10, signature, signature.j, 'object');
+        var pointAsString = this.canonizeCurvePoint(recoveredPoint);
+    
+        const hash = this.hashMessage(pointAsString);
+        return {hash: hash}
+    }
+    
+    public verify(message:string, signature:Signature, publicKey:PublicKey){
+        
+        const recoveredPubkey = this.recoverPublicKey(message, signature);
+        return publicKey.hash == recoveredPubkey.hash;
+    }
+    
+    private canonizeCurvePoint(point){
+    
+        return point.x.toString(16) + ":" + point.y.toString(16);
+    }
+    
+    private hashMessage(message:string) : string{
+    
+        const digest = this.suite.hashfunction.hex(message);
+        return digest.substring(0, this.suite.curvelenght/4);
+    }
+
 }
 
-function canonizeCurvePoint(point){
 
-    return point.x.toString(16) + ":" + point.y.toString(16);
-}
 
-function hashMessage(message:string) : string{
-
-    const digest = SHA256.hex(message);
-    return digest.substring(0, CURVE_LENGHT/4);
-}
