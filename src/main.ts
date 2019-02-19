@@ -61,7 +61,6 @@ export function verifySignature(subjectName: string, message: string, signature:
     return isvalid;
 }
 
-
 function canocializeSignedData(version: number, subjectName: string, subjectPublicKey: crypto.PublicKey, validity: TimePeroid){
 
     return version + "+" +  subjectName + "+" + subjectPublicKey.hash + "+" + validity.start + "+" + validity.end;
