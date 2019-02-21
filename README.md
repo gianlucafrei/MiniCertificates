@@ -9,7 +9,8 @@ MiniCertificates only support ECDSA keys. This is because when using ECDSA, you 
 ## How does it work
 Unlike a normal public key certificate, the key itself is not stored in a MiniCertificate. To verify the validity of a certificate, the verifier first needs to recover the public key from a signature, and can then check if the signature of the MiniCertificate is valid.
 
-## Quickstart
+## Quickstart
+
 ```
 npm install
 npm run build
