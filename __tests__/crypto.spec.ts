@@ -1,10 +1,11 @@
 import * as crypto from '../src/crypto';
+import * as suites from '../src/suites';
 
 describe('crypto test', ()=>{
 
-    let suites = [crypto.P192SHA256, crypto.P256SHA256];
+    let allSuites = [suites.P192SHA256, suites.P256SHA256];
 
-    suites.forEach(suite => {
+    allSuites.forEach(suite => {
         
         let cr = new crypto.Crypto(suite);
 

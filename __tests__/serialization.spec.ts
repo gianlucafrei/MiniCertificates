@@ -1,16 +1,19 @@
-import * as minicert from '../src/main';
+import {MC} from '../src/main';
 import * as serialization from '../src/serialization'
 
 describe('certificate test', ()=>{
 
-    // Step 1: Key generation for ca and user
-    const caPrivate = minicert.newPrivateKey();
 
-    const userPrivate = minicert.newPrivateKey();
-    const userPublic = minicert.computePublicKeyFromPrivateKey(userPrivate);
+    const mc = new MC('p192');
+
+    // Step 1: Key generation for ca and user
+    const caPrivate = mc.newPrivateKey();
+
+    const userPrivate = mc.newPrivateKey();
+    const userPublic = mc.computePublicKeyFromPrivateKey(userPrivate);
 
     // Step 2: Ca signs a certificate for the user 
-    const certificate = minicert.signCertificate("user", userPublic, {start: 444, end: 888}, caPrivate);
+    const certificate = mc.signCertificate("user", userPublic, {start: 444, end: 888}, caPrivate);
 
     test('test serialization', ()=>{
 

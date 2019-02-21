@@ -1,81 +1,106 @@
-import {P192SHA256, Crypto, Signature, PrivateKey, PublicKey} from "./crypto"
-
-let suite = P192SHA256;
-let crypto = new Crypto(suite);
+import { Crypto, Signature, PrivateKey, PublicKey } from "./crypto";
+import * as suites from './suites';
 
 export const VERSION = 0;
 
-export interface TimePeroid{
+export interface TimePeroid {
     /* Time periods conists of two 32bit integers in unix time*/
     start: number,
     end: number
 }
 
-export interface Certificate{
+export interface Certificate {
     version: number,
     subject: string,
     validity: TimePeroid,
     signature: Signature
 }
 
-export function newPrivateKey() : PrivateKey{
+export class MC {
 
-    return crypto.generatePrivateKey();
-}
+    readonly suite: suites.Suite;
+    readonly crypto: Crypto;
 
-export function computePublicKeyFromPrivateKey(privateKey: PrivateKey, ) : PublicKey{
+    constructor(cryptoSuite: suites.Suite | string) {
 
-    return crypto.publicFromPrivate(privateKey)
-}
+        if (typeof cryptoSuite === 'string' || cryptoSuite instanceof String) {
+            switch (cryptoSuite) {
+                case 'p192':
+                    this.suite = suites.P192SHA256;
+                    break;
+                case 'p256':
+                    this.suite = suites.P256SHA256;
+                    break;
+                default:
+                    throw new Error('unkown cyper suite');
+            }
+        }
+        else {
+            this.suite = cryptoSuite;
+        }
 
-export function signCertificate(
-    subjectName: string,
-    subjectPublicKey: PublicKey,
-    validity: TimePeroid,
-    issuerPrivateKey: PrivateKey,
-    ) : Certificate{
+        this.crypto = new Crypto(this.suite);
+    };
 
-    const signedData = canocializeSignedData(VERSION, subjectName, subjectPublicKey, validity);
-    const signature = crypto.sign(signedData, issuerPrivateKey);
+    public newPrivateKey(): PrivateKey {
 
-    const certificate = {
-        version: VERSION,
-        subject: subjectName,
-        validity: validity,
-        signature: signature
+        return this.crypto.generatePrivateKey();
     }
 
-    return certificate;
-}
+    public computePublicKeyFromPrivateKey(privateKey: PrivateKey, ): PublicKey {
 
-export function sign(message: string, privateKey: PrivateKey, ) : Signature{
+        return this.crypto.publicFromPrivate(privateKey)
+    }
 
-    return crypto.sign(message, privateKey);
-}
+    public signCertificate(
+        subjectName: string,
+        subjectPublicKey: PublicKey,
+        validity: TimePeroid,
+        issuerPrivateKey: PrivateKey,
+    ): Certificate {
 
-export function verifySignature(
-    subjectName: string,
-    message: string,
-    signature: Signature,
-    certificate: Certificate,
-    caPublicKey: PublicKey,
-    ){
+        const signedData = canocializeSignedData(VERSION, subjectName, subjectPublicKey, validity);
+        const signature = this.crypto.sign(signedData, issuerPrivateKey);
 
-    // Calculate the public key which verifies the signature
-    const publicKey = crypto.recoverPublicKey(message, signature);
+        const certificate = {
+            version: VERSION,
+            subject: subjectName,
+            validity: validity,
+            signature: signature
+        }
 
-    // Reassmble the certificate data
-    const signedData = canocializeSignedData(certificate.version, subjectName, publicKey, certificate.validity);
+        return certificate;
+    }
 
-    const isvalid = crypto.verify(signedData, certificate.signature, caPublicKey);
-    return isvalid;
+    public sign(message: string, privateKey: PrivateKey, ): Signature {
+
+        return this.crypto.sign(message, privateKey);
+    }
+
+    public verifySignature(
+        subjectName: string,
+        message: string,
+        signature: Signature,
+        certificate: Certificate,
+        caPublicKey: PublicKey,
+    ) {
+
+        // Calculate the public key which verifies the signature
+        const publicKey = this.crypto.recoverPublicKey(message, signature);
+
+        // Reassmble the certificate data
+        const signedData = canocializeSignedData(certificate.version, subjectName, publicKey, certificate.validity);
+
+        const isvalid = this.crypto.verify(signedData, certificate.signature, caPublicKey);
+        return isvalid;
+    }
 }
 
 function canocializeSignedData(
     version: number,
     subjectName: string,
     subjectPublicKey: PublicKey,
-    validity: TimePeroid){
+    validity: TimePeroid) {
 
-    return version + "+" +  subjectName + "+" + subjectPublicKey.hash + "+" + validity.start + "+" + validity.end;
+    return version + "+" + subjectName + "+" + subjectPublicKey.hash + "+" + validity.start + "+" + validity.end;
 }

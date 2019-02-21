@@ -1,6 +1,6 @@
-const EC = require("elliptic").ec;
+import {Suite} from './suites'
+
 const BN = require('bn.js');
-const Hashes = require('jshashes');
 
 export interface PrivateKey{
     /* Private exponent */
@@ -18,25 +18,6 @@ export interface Signature{
     r: string,
     s: string,
     j: number
-}
-
-export interface Suite {
-    ec,
-    curvelenght: number,
-    hashfunction
-}
-
-export const P192SHA256:Suite = {
-
-    ec: new EC('p192'),
-    curvelenght: 192,
-    hashfunction: new Hashes.SHA256
-}
-
-export const P256SHA256:Suite={
-    ec: new EC('p256'),
-    curvelenght: 256,
-    hashfunction: new Hashes.SHA256
 }
 
 export class Crypto{
