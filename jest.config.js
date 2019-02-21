@@ -16,5 +16,6 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.{ts,tsx,js,jsx}',
     '!src/**/*.d.ts',
+    '!src/sizeReport.ts'
   ],
 };

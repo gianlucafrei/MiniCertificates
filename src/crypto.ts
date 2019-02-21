@@ -93,6 +93,13 @@ export class Crypto{
     private hashMessage(message:string) : string{
     
         const digest = this.suite.hashfunction.hex(message);
+
+        /*
+        Trim the digest to the curve size
+        Example:
+        Digest is 256 bit => 32 Bytes => 64 hex chars
+        Curve is 192 bit =>  24 Bytes => 48 hex chars
+        */
         return digest.substring(0, this.suite.curvelenght/4);
     }
 
