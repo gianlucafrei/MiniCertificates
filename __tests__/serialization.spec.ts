@@ -1,5 +1,4 @@
 import {MC} from '../src/main';
-import * as serialization from '../src/serialization'
 
 describe('certificate test', ()=>{
 
@@ -15,16 +14,12 @@ describe('certificate test', ()=>{
     // Step 2: Ca signs a certificate for the user 
     const certificate = mc.signCertificate("user", userPublic, {start: 444, end: 888}, caPrivate);
 
-    test('test serialization', ()=>{
+    test('test certificate size', ()=>{
 
-        const data = serialization.serializeCertificate(certificate);
-        
-        const size = data.length;
+        // Since the certificate is serialized as a hex string the length
+        // is just the length of the string diveded by two
+        const size = certificate.length / 2;
         expect(size).toBeLessThanOrEqual(100);
-        
-        const unpacked = serialization.deserializeCertificate(data);
 
-        expect(unpacked).toEqual(certificate);
     });
-
 })

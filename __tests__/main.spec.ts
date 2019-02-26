@@ -1,6 +1,4 @@
 import {MC} from '../src/main';
-import {P192SHA256} from '../src/suites';
-
 
 describe('interface test', ()=>{
 
@@ -21,7 +19,7 @@ describe('interface test', ()=>{
 
 describe('certificate test', ()=>{
 
-    const mc = new MC(P192SHA256);
+    const mc = new MC('p256');
 
     // Step 1: Key generation for ca and user
     const caPrivate = mc.newPrivateKey();
