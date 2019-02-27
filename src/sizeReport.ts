@@ -20,7 +20,9 @@ ALL.forEach(suite => {
     const userPublic = mc.computePublicKeyFromPrivateKey(userPrivate);
 
     // Step 2: Ca signs a certificate for the user 
-    const certificate = mc.signCertificate("user", userPublic, {start: 1_550_741_071, end: 1_550_999_999}, caPrivate);
+    const validityStart = mc.now();
+    const vallidityEnd = mc.plus(validityStart, 1, 0, 0, 0, 0, 0);
+    const certificate = mc.signCertificate("user", userPublic, validityStart, vallidityEnd, caPrivate);
 
     const privateKeySize = userPrivate.length / 2; // always two chars per byte
     const publicKeySize = userPublic.length / 2;

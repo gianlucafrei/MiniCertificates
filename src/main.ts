@@ -2,9 +2,7 @@ import * as crypto from "./crypto";
 import * as suites from './suites';
 import * as serialization from './serialization';
 
-export const VERSION = 0;
-
-export interface TimePeroid {
+interface TimePeroid {
     /* Time periods conists of two 32bit integers in unix time*/
     start: number,
     end: number
@@ -19,6 +17,7 @@ export interface Certificate {
 
 export class MC {
 
+    readonly VERSION = 0;
     readonly suite: suites.Suite;
     readonly crypto: crypto.Crypto;
 
@@ -55,18 +54,21 @@ export class MC {
     public signCertificate(
         subjectName: string,
         subjectPublicKey: string,
-        validity: TimePeroid,
+        validityStart: number,
+        validityEnd: number,
         issuerPrivateKey: string,
     ): string {
+
+        const validity = {start: validityStart, end: validityEnd};
 
         const pubKey = serialization.deserializePublicKey(subjectPublicKey);
         const privKey = serialization.dezerializePrivateKey(issuerPrivateKey);
 
-        const signedData = canocializeSignedData(VERSION, subjectName, pubKey, validity);
+        const signedData = canocializeSignedData(this.VERSION, subjectName, pubKey, validity);
         const signature = this.crypto.sign(signedData, privKey);
 
         const certificate = {
-            version: VERSION,
+            version: this.VERSION,
             subject: subjectName,
             validity: validity,
             signature: signature
@@ -88,20 +90,48 @@ export class MC {
         signature: string,
         certificate: string,
         caPublicKey: string
-    ) {
+    ) : boolean {
 
         const sign = serialization.deserializeSignature(signature);
         const cert = serialization.deserializeCertificate(certificate);
         const pubKey = serialization.deserializePublicKey(caPublicKey);
+
+        // if the now is not within the validity of the certificate we directly return false
+        var now = this.now();
+        if(now < cert.validity.start || now > cert.validity.end)
+            return false;
 
         // Calculate the public key which verifies the signature
         const publicKey = this.crypto.recoverPublicKey(message, sign);
 
         // Reassmble the certificate data
         const signedData = canocializeSignedData(cert.version, subjectName, publicKey, cert.validity);
-
         const isvalid = this.crypto.verify(signedData, cert.signature, pubKey);
         return isvalid;
+    }
+
+    public dateToUnixTime(date:Date):number{
+
+        return Math.floor(date.getTime() / 1000);
+    }
+
+    public now() : number{
+
+        return this.dateToUnixTime(new Date());
+    };
+    
+    public plus(timstamp, years, months, days, hours, minutes, seconds)
+    {
+        var date = new Date(timstamp * 1000);
+        
+        date.setFullYear(date.getFullYear() + years);
+        date.setMonth(date.getMonth() + months);
+        date.setDate(date.getDate() + days);
+        date.setHours(date.getHours() + hours);
+        date.setMinutes(date.getMinutes() + minutes);
+        date.setSeconds(date.getSeconds() + seconds);
+    
+        return this.dateToUnixTime(date); 
     }
 }
 

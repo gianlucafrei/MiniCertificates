@@ -16,3 +16,46 @@ npm install
 npm run build
 npm run test
 ```
+
+## Size of the certificate
+
+The size of the certificate depends on the cipher suite used and length of the username.
+This tables lists all supported suites and the sizes of the keys, signature and certificates in bytes.
+
+Suite   Secret Key   Public Key   Certificate
+p192      24         24           84
+p256      32         32           100
+
+## How to use
+
+```
+var minicert = require('./build/src/main.js');
+var mc = new minicert.MC('p256');
+
+// Create key pair for the issuer of the certificate
+var caSecret = mc.newPrivateKey();
+var caPublic = mc.computePublicKeyFromPrivateKey(caSecret);
+console.log("CA secret: " + caSecret); // 6ed72ae2e...
+console.log("CA public: " + caPublic); // 7cb807cc3...
+
+// Create key pair for user
+var userSecret = mc.newPrivateKey();
+var userPublic = mc.computePublicKeyFromPrivateKey(userSecret);
+
+// Sign the certificate
+var username = "pirate";
+var validityStart = mc.now();
+var validityEnd = mc.plus(validityStart)
+var certificate = mc.signCertificate(username, userPublic, validityStart, validityEnd, caSecret);
+console.log("Certificate value: " + certificate); // 87a17600...
+
+// user signs a message
+var message = "This is a message";
+var signature = mc.sign(message, userSecret);
+console.log("Signature value: " + signature); // 83a172d9...
+
+// Test the validity of the signature with the certificate
+var expectedUser = "pirate";
+var isValid = mc.verifySignature(expectedUser, message, signature, certificate, caPublic);
+console.log("Is a valid signature: " + isValid); // true
+```

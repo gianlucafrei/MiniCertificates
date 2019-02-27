@@ -24,11 +24,11 @@ export function serializeCertificate(certificate: Certificate) : string{
     const doc = {
         v: certificate.version,
         s: certificate.subject,
-        vs:certificate.validity.start,
-        ve:certificate.validity.end,
-        sr: hexStringToBuffer(certificate.signature.r),
-        ss: hexStringToBuffer(certificate.signature.s),
-        sj: certificate.signature.j
+        t:certificate.validity.start,
+        e:certificate.validity.end,
+        r: hexStringToBuffer(certificate.signature.r),
+        u: hexStringToBuffer(certificate.signature.s),
+        j: certificate.signature.j
     }
 
     var buffer : Buffer = msgpack.encode(doc);
@@ -43,8 +43,8 @@ export function deserializeCertificate(serializedCertificate : string) : Certifi
     const certificate = {
         version: doc.v,
         subject: doc.s,
-        validity: {start: doc.vs, end: doc.ve},
-        signature: {r: bufferToHexString(doc.sr), s: bufferToHexString(doc.ss), j: doc.sj}
+        validity: {start: doc.t, end: doc.e},
+        signature: {r: bufferToHexString(doc.r), s: bufferToHexString(doc.u), j: doc.j}
     }
 
     return certificate;

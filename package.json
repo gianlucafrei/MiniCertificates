@@ -1,5 +1,5 @@
 {
-  "name": "MiniCertificates",
+  "name": "minicertificates",
   "version": "0.0.0",
   "description": "Very very small certificates for strong authentication",
   "engines": {

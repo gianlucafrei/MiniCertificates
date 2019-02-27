@@ -12,7 +12,9 @@ describe('certificate test', ()=>{
     const userPublic = mc.computePublicKeyFromPrivateKey(userPrivate);
 
     // Step 2: Ca signs a certificate for the user 
-    const certificate = mc.signCertificate("user", userPublic, {start: 444, end: 888}, caPrivate);
+    const validityStart = mc.now();
+    const validEnd = mc.plus(validityStart, 0, 2, 0, 0, 0,0);
+    const certificate = mc.signCertificate("user", userPublic, validityStart, validEnd, caPrivate);
 
     test('test certificate size', ()=>{
 
