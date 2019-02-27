@@ -22,9 +22,10 @@ npm run test
 The size of the certificate depends on the cipher suite used and length of the username.
 This tables lists all supported suites and the sizes of the keys, signature and certificates in bytes.
 
-Suite   Secret Key   Public Key   Certificate
-p192      24         24           84
-p256      32         32           100
+| Suite | Secret Key | Public Key | Certificate |
+|-------|------------|------------|-------------|
+| p192  | 24         | 24         | 84          |
+| p256  | 32         | 32         | 100         |
 
 ## How to use
 
