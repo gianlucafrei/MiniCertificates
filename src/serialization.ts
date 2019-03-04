@@ -55,7 +55,7 @@ export function serializePrivateKey(key:PrivateKey):string{
     return key.x;
 }
 
-export function dezerializePrivateKey(serializedKey:string):PrivateKey{
+export function deserializePrivateKey(serializedKey:string):PrivateKey{
  
     return {x:serializedKey};
 }

@@ -1,6 +1,11 @@
 import {Suite} from './suites'
-
 const BN = require('bn.js');
+
+/**
+ * This module provides an simpler interface for the elliptic library.
+ * In case you would like to use another crypto back-end you could write
+ * another Crypto Class. (For using Openssl or similar...)
+ */
 
 export interface PrivateKey{
     /* Private exponent */

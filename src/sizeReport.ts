@@ -1,6 +1,5 @@
 import{ALL} from '../src/suites';
 import{MC} from '../src/main';
-
 /*
     This script prints a simple report of the key and certificate sizes
     for different cipher suites.

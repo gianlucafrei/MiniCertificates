@@ -29,6 +29,9 @@ This tables lists all supported suites and the sizes of the keys, signature and 
 
 ## How to use
 
+All inputs are strings.
+All outputs are hexdecimal numbers as strings.
+
 ```
 var minicert = require('./build/src/main.js');
 var mc = new minicert.MC('p256');
