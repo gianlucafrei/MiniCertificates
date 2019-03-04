@@ -10,7 +10,7 @@ console.log("Suite   Secret Key   Public Key   Certificate")
 
 ALL.forEach(suite => {
 
-    const mc = new MC(suite.name);
+    const mc = new MC(suite.name, MC.insecureRandom);
 
     // Step 1: Key generation for ca and user
     const caPrivate = mc.newPrivateKey();

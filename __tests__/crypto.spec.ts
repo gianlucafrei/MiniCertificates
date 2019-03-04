@@ -1,5 +1,6 @@
 import * as crypto from '../src/crypto';
 import * as suites from '../src/suites';
+const minicert = require("../src/main");
 
 describe('crypto test', ()=>{
 
@@ -7,7 +8,7 @@ describe('crypto test', ()=>{
 
     allSuites.forEach(suite => {
         
-        let cr = new crypto.Crypto(suite);
+        let cr = new crypto.Crypto(suite, minicert.insecureRandom);
 
         test('test key recovery', ()=>{
 

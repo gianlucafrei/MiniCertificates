@@ -28,10 +28,13 @@ export interface Signature{
 export class Crypto{
 
     suite: Suite;
+    readonly random: (number)=>number[];
 
-    constructor(suite:Suite){
+    constructor(suite:Suite, randomFunction: (number)=>number[]){
         this.suite = suite;
-    }
+        this.suite.ec.rand = randomFunction;
+        this.random = randomFunction;
+    };
 
 
     public privateKeyFromSecret(secret:string) : PrivateKey{
@@ -43,7 +46,8 @@ export class Crypto{
     
     public generatePrivateKey() : PrivateKey{
     
-        const key = this.suite.ec.genKeyPair();
+        const entropy = this.random(this.suite.curvelenght);
+        const key = this.suite.ec.genKeyPair({entropy: entropy});
         const exponent = key.getPrivate('hex');
         
         return {x:exponent};

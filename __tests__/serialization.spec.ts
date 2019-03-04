@@ -1,9 +1,8 @@
-import {MC} from '../src/main';
-
 describe('certificate test', ()=>{
 
+    const minicert = require("../src/main");
+    const mc = new minicert('p256', minicert.insecureRandom);
 
-    const mc = new MC('p192');
 
     // Step 1: Key generation for ca and user
     const caPrivate = mc.newPrivateKey();

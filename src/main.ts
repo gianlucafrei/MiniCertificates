@@ -30,7 +30,7 @@ export class MC {
     readonly suite: suites.Suite;
     readonly crypto: crypto.Crypto;
 
-    constructor(cryptoSuite: string) {
+    constructor(cryptoSuite: string, randomFunction: (number)=>number[]) {
 
         switch (cryptoSuite) {
             case 'p192':
@@ -43,7 +43,7 @@ export class MC {
                 throw new Error('unknown cypher suite');
         }
 
-        this.crypto = new crypto.Crypto(this.suite);
+        this.crypto = new crypto.Crypto(this.suite, randomFunction);
     };
 
     /**
@@ -211,6 +211,17 @@ export class MC {
     
         return this.dateToUnixTime(date); 
     }
+
+    /**
+     * WARNING: This is not secure
+     * Generates n random bytes 
+     * @param n 
+     */
+    public static insecureRandom(n){
+
+        return Array.from({length: n}, () => Math.floor(Math.random() * 256));
+
+    }
 }
 
 /**
@@ -228,3 +239,6 @@ function canonicalizeCertificateData(
 
     return version + "+" + subjectName + "+" + subjectPublicKey.hash + "+" + validity.start + "+" + validity.end;
 }
+
+
+module.exports = MC;

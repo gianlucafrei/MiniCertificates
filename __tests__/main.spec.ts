@@ -1,24 +1,33 @@
-import {MC} from '../src/main';
-
-
-const mc = new MC('p256');
+const minicert = require("../src/main");
+const mc = new minicert('p256', minicert.insecureRandom);
 
 describe('interface test', ()=>{
 
     test('test valid suites', ()=>{
 
         //those cypher suites exists
-        const mc1 = new MC('p192');
+        const mc1 = new minicert('p192');
         expect(mc1).not.toBeNull();
 
-        const mc2 = new MC('p256');
+        const mc2 = new minicert('p256');
         expect(mc2).not.toBeNull();
 
         // This does not
-        expect(()=>new MC('does not exists')).toThrow();
+        expect(()=>new minicert('does not exists')).toThrow();
     });
 
 });
+
+describe("randomness test", ()=>{
+
+    test("test that two new keys are not equal", ()=>{
+
+        const key1 = mc.newPrivateKey();
+        const key2 = mc.newPrivateKey();
+        
+        expect(key1).not.toEqual(key2);
+    });
+})
 
 describe('certificate test', ()=>{
 
