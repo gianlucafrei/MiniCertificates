@@ -15,6 +15,8 @@ describe('certificate test', ()=>{
     const validEnd = mc.plus(validityStart, 0, 2, 0, 0, 0,0);
     const certificate = mc.signCertificate("user", userPublic, validityStart, validEnd, caPrivate);
 
+    const sign = mc.sign("foobar", userPrivate);
+
     test('test certificate size', ()=>{
 
         // Since the certificate is serialized as a hex string the length
@@ -23,4 +25,11 @@ describe('certificate test', ()=>{
         expect(size).toBeLessThanOrEqual(100);
 
     });
+
+    test('test signature size', ()=>{
+
+        const signSize = sign.length / 2;
+        expect(signSize).toBeLessThanOrEqual(90);
+
+    })
 })

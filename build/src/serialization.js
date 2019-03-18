@@ -55,13 +55,24 @@ function deserializePublicKey(serializedKey) {
 }
 exports.deserializePublicKey = deserializePublicKey;
 function serializeSignature(signature) {
-    var buffer = msgpack.encode(signature);
+    let obj = {
+        r: hexStringToBuffer(signature.r),
+        s: hexStringToBuffer(signature.s),
+        j: signature.j
+    };
+    var buffer = msgpack.encode(obj);
     return bufferToHexString(buffer);
 }
 exports.serializeSignature = serializeSignature;
 function deserializeSignature(serializedSignature) {
     var buffer = hexStringToBuffer(serializedSignature);
-    return msgpack.decode(buffer);
+    var obj = msgpack.decode(buffer);
+    var signature = {
+        r: bufferToHexString(obj.r),
+        s: bufferToHexString(obj.s),
+        j: obj.j
+    };
+    return signature;
 }
 exports.deserializeSignature = deserializeSignature;
 //# sourceMappingURL=serialization.js.map
