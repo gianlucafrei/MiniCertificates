@@ -12,9 +12,7 @@ Unlike a normal public key certificate, the key itself is not stored in a MiniCe
 ## Quickstart
 
 ```
-npm install
-npm run build
-npm run test
+npm install gianlucafrei/MiniCertificates
 ```
 
 ## Size of the certificate
@@ -33,7 +31,7 @@ All inputs are strings.
 All outputs are hexdecimal numbers as strings.
 
 ```
-var minicert = require('./build/src/main.js');
+var minicert = require('minicertificates');
 var mc = new minicert('p256', minicert.insecureRandom);
 
 // Create key pair for the issuer of the certificate
