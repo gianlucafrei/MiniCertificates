@@ -34,7 +34,7 @@ All outputs are hexdecimal numbers as strings.
 
 ```
 var minicert = require('./build/src/main.js');
-var mc = new minicert.MC('p256');
+var mc = new minicert('p256', minicert.insecureRandom);
 
 // Create key pair for the issuer of the certificate
 var caSecret = mc.newPrivateKey();

@@ -1,5 +1,6 @@
 {
   "name": "minicertificates",
+  "main": "./build/src/main.js",
   "version": "0.0.0",
   "description": "Very very small certificates for strong authentication",
   "engines": {
@@ -21,8 +22,8 @@
   },
   "scripts": {
     "clean": "rimraf coverage build tmp",
-    "build": "tsc -p tsconfig.release.json && browserify build/src/main.js --s minicert -o build/minicert.js",
-    "build:watch": "tsc -w -p tsconfig.release.json && browserify build/src/main.js --s minicert -o build/minicert.js",
+    "build": "tsc -p tsconfig.release.json",
+    "build:watch": "tsc -w -p tsconfig.release.json",
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
     "test": "jest --coverage",
     "test:watch": "jest --watch"
