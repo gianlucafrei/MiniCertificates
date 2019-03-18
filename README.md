@@ -58,6 +58,6 @@ console.log("Signature value: " + signature); // 83a172d9...
 
 // Test the validity of the signature with the certificate
 var expectedUser = "pirate";
-var isValid = mc.verifySignature(expectedUser, message, signature, certificate, caPublic);
+var isValid = mc.verifySignatureWithCertificate(expectedUser, message, signature, certificate, caPublic);
 console.log("Is a valid signature: " + isValid); // true
 ```

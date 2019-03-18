@@ -51,10 +51,31 @@ describe('certificate test', ()=>{
     const nonce = "this is a nonce as a string"
     const signature = mc.sign(nonce, userPrivate);
 
+    test('test verify with valid public key', ()=>{
+
+        const isAuthentic = mc.verifySignatureWithPublicKey(nonce, signature, userPublic);
+        expect(isAuthentic).toBe(true);
+
+    });
+
+    test('test verify with invalid public key', ()=>{
+
+        const isAuthentic = mc.verifySignatureWithPublicKey(nonce, signature, caPublic);
+        expect(isAuthentic).toBe(false);
+
+    });
+
+    test('test public key recover', ()=>{
+
+        const recoveredPk = mc.recoverSignerPublicKey(nonce, signature);
+        expect(recoveredPk).toEqual(userPublic);
+
+    })
+
     test('test certificate validation correct', ()=>{
 
         // Step 4: Check authentication
-        const isAuthentic = mc.verifySignature("user", nonce, signature, certificate, trustedKeys);
+        const isAuthentic = mc.verifySignatureWithCertificate("user", nonce, signature, certificate, trustedKeys);
         expect(isAuthentic).toBe(true);
     });
 
@@ -71,14 +92,14 @@ describe('certificate test', ()=>{
     test('test certificate validation invalid user', ()=>{
 
         // Step 4: Check authentication
-        const isAuthentic = mc.verifySignature("userX", nonce, signature, certificate, trustedKeys);
+        const isAuthentic = mc.verifySignatureWithCertificate("userX", nonce, signature, certificate, trustedKeys);
         expect(isAuthentic).toBe(false);
     });
 
     test('test certificate validation invalid message', ()=>{
 
         // Step 4: Check authentication
-        const isAuthentic = mc.verifySignature("user", "this is another nonce", signature, certificate, trustedKeys);
+        const isAuthentic = mc.verifySignatureWithCertificate("user", "this is another nonce", signature, certificate, trustedKeys);
         expect(isAuthentic).toBe(false);
     });
 
@@ -88,7 +109,7 @@ describe('certificate test', ()=>{
         const ca2Public = mc.computePublicKeyFromPrivateKey(ca2Private);
 
         // Step 4: Check authentication
-        const isAuthentic = mc.verifySignature("user", nonce, signature, certificate, [ca2Public]);
+        const isAuthentic = mc.verifySignatureWithCertificate("user", nonce, signature, certificate, [ca2Public]);
         expect(isAuthentic).toBe(false);
     });
 
@@ -98,7 +119,7 @@ describe('certificate test', ()=>{
         const validEnd = mc.plus(validityStart, 0, 2, 0, 0, 0,0);
         const certificate = mc.signCertificate("user", userPublic, validityStart, validEnd, caPrivate);
 
-        const isAuthentic = mc.verifySignature("user", nonce, signature, certificate, trustedKeys);
+        const isAuthentic = mc.verifySignatureWithCertificate("user", nonce, signature, certificate, trustedKeys);
         expect(isAuthentic).toBe(false);
     });
 

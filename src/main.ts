@@ -115,6 +115,28 @@ export class MC {
     }
 
     /**
+     * Returns the public key of the signer
+     * @param message The signed message
+     * @param signature The signature for the message
+     */
+    public recoverSignerPublicKey(message:string, signature:string){
+
+        const sign = serialization.deserializeSignature(signature);
+        const pk = this.crypto.recoverPublicKey(message, sign);
+        
+        return serialization.serializePublicKey(pk);
+
+    }
+
+    public verifySignatureWithPublicKey(message:string, signature:string, publicKey:string){
+
+        const sign = serialization.deserializeSignature(signature);
+        const pk = serialization.deserializePublicKey(publicKey);
+
+        return this.crypto.verify(message, sign, pk);
+    }
+
+    /**
      * Verifies the signature of a given message with a certificate.
      * @param subjectName The expected name of the signer.
      * @param message The signed message
@@ -122,7 +144,7 @@ export class MC {
      * @param certificate The public key certificate of the signer
      * @param trustedCaPublicKeys The public key of the ca who signed the message
      */
-    public verifySignature(
+    public verifySignatureWithCertificate(
         subjectName: string,
         message: string,
         signature: string,
@@ -164,7 +186,7 @@ export class MC {
     ){
 
         var claimedName = serialization.deserializeCertificate(certificate).subject;
-        var isValid = this.verifySignature(claimedName, message, signature, certificate, trustedCaPublicKeys);
+        var isValid = this.verifySignatureWithCertificate(claimedName, message, signature, certificate, trustedCaPublicKeys);
         if(isValid)
             return claimedName;
         else

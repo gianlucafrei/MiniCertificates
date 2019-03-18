@@ -47,7 +47,17 @@ class MC {
         const signature = this.crypto.sign(message, privKey);
         return serialization.serializeSignature(signature);
     }
-    verifySignature(subjectName, message, signature, certificate, trustedCaPublicKeys) {
+    recoverSignerPublicKey(message, signature) {
+        const sign = serialization.deserializeSignature(signature);
+        const pk = this.crypto.recoverPublicKey(message, sign);
+        return serialization.serializePublicKey(pk);
+    }
+    verifySignatureWithPublicKey(message, signature, publicKey) {
+        const sign = serialization.deserializeSignature(signature);
+        const pk = serialization.deserializePublicKey(publicKey);
+        return this.crypto.verify(message, sign, pk);
+    }
+    verifySignatureWithCertificate(subjectName, message, signature, certificate, trustedCaPublicKeys) {
         const sign = serialization.deserializeSignature(signature);
         const cert = serialization.deserializeCertificate(certificate);
         var now = this.now();
@@ -61,7 +71,7 @@ class MC {
     }
     getAuthenticSigner(message, signature, certificate, trustedCaPublicKeys) {
         var claimedName = serialization.deserializeCertificate(certificate).subject;
-        var isValid = this.verifySignature(claimedName, message, signature, certificate, trustedCaPublicKeys);
+        var isValid = this.verifySignatureWithCertificate(claimedName, message, signature, certificate, trustedCaPublicKeys);
         if (isValid)
             return claimedName;
         else
