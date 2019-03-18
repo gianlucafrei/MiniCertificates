@@ -1,7 +1,7 @@
 {
   "name": "minicertificates",
   "main": "./build/src/main.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Very very small certificates for strong authentication",
   "engines": {
     "node": ">= 10.13 <11"

@@ -72,7 +72,13 @@ export function deserializePublicKey(serializedKey:string):PublicKey{
 
 export function serializeSignature(signature:Signature):string{
 
-    var buffer : Buffer = msgpack.encode(signature);
+    let obj = {
+        r: hexStringToBuffer(signature.r),
+        s: hexStringToBuffer(signature.s),
+        j: signature.j
+    }
+
+    var buffer : Buffer = msgpack.encode(obj);
     return bufferToHexString(buffer);
 
 }
@@ -80,6 +86,14 @@ export function serializeSignature(signature:Signature):string{
 export function deserializeSignature(serializedSignature:string):Signature{
 
     var buffer : Buffer = hexStringToBuffer(serializedSignature);
-    return msgpack.decode(buffer);
+    var obj = msgpack.decode(buffer);
+
+    var signature = {
+        r: bufferToHexString(obj.r),
+        s: bufferToHexString(obj.s),
+        j: obj.j
+    }
+
+    return signature;
 
 }
