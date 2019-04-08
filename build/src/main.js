@@ -70,12 +70,16 @@ class MC {
         return isValid;
     }
     getAuthenticSigner(message, signature, certificate, trustedCaPublicKeys) {
-        var claimedName = serialization.deserializeCertificate(certificate).subject;
+        var claimedName = this.getUsernameOfCertificate(certificate);
         var isValid = this.verifySignatureWithCertificate(claimedName, message, signature, certificate, trustedCaPublicKeys);
         if (isValid)
             return claimedName;
         else
             return null;
+    }
+    getUsernameOfCertificate(certificate) {
+        var cert = serialization.deserializeCertificate(certificate);
+        return cert.subject;
     }
     dateToUnixTime(date) {
         return Math.floor(date.getTime() / 1000);

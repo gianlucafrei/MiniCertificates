@@ -172,7 +172,8 @@ export class MC {
     }
 
     /**
-     * Returns the name of the signer is the signature matches the certificate.
+     * Returns the name of the signer is the signature matches the certificate
+     * or null if the signature is not valid for the certificate
      * @param message The signed message
      * @param signature The signature of the message
      * @param certificate The public key certificate of the signer
@@ -185,12 +186,18 @@ export class MC {
         trustedCaPublicKeys: string[]
     ){
 
-        var claimedName = serialization.deserializeCertificate(certificate).subject;
+        var claimedName = this.getUsernameOfCertificate(certificate);
         var isValid = this.verifySignatureWithCertificate(claimedName, message, signature, certificate, trustedCaPublicKeys);
         if(isValid)
             return claimedName;
         else
             return null;
+    }
+
+    public getUsernameOfCertificate(certificate: string){
+
+        var cert = serialization.deserializeCertificate(certificate);
+        return cert.subject;
     }
 
     /**
