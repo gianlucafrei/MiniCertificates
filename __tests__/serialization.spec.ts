@@ -1,3 +1,5 @@
+import { deserializeSignature, serializeSignature } from "../src/serialization";
+
 describe('certificate test', ()=>{
 
     const minicert = require("../src/main");
@@ -28,8 +30,22 @@ describe('certificate test', ()=>{
 
     test('test signature size', ()=>{
 
+
+        const expectedSize = (256 * 2 / 8) + 1;
+
         const signSize = sign.length / 2;
-        expect(signSize).toBeLessThanOrEqual(90);
+        expect(signSize).toBeLessThanOrEqual(expectedSize);
 
     })
+
+    test('test signature serialization corectness', ()=>{
+
+        let sign = {r: 'aabbcc', s: '33445', j: 3}
+        let copy = deserializeSignature(serializeSignature(sign))
+
+        expect(copy.s).toEqual(sign.s);
+        expect(copy.r).toEqual(sign.r);
+        expect(copy.j).toEqual(sign.j);
+
+    });
 })

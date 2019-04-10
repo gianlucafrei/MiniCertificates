@@ -72,16 +72,27 @@ export function deserializePublicKey(serializedKey:string):PublicKey{
 
 export function serializeSignature(signature:Signature):string{
 
+    let s = signature.s;
+    let r = signature.r;
+    let j = signature.j;
+
+    // Pad hexstring with 0
+    if(s.length % 2 == 1)
+        s = '0' + s;
+    
+    if(r.length % 2 == 1)
+        r = '0' + r;
+
     // check that s has the same size as r 
-    if(signature.s.length != signature.r.length)
+    if(s.length != r.length)
         throw new Error('signature s has not the same length as r');
 
-    if(signature.j > 4)
+    if(j > 4)
         throw new Error('invalid singature j');
 
     // For efficiency we just concat all signature parts
-    let hexstr = signature.s + signature.r;
-    hexstr += '0' + signature.j;
+    let hexstr = s + r;
+    hexstr += '0' + j;
 
     return hexstr;
 
@@ -97,6 +108,12 @@ export function deserializeSignature(serializedSignature:string):Signature{
     let shex = serializedSignature.substring(0,(n-2)/2);
     let rhex = serializedSignature.substring((n-2)/2,(n-2));
     let jhex = serializedSignature.substring((n-2), n);
+
+    // Remove useless 0
+    if(shex[0] == '0')
+        shex = shex.substring(1, shex.length);
+    if(rhex[0] == '0')
+        rhex = rhex.substring(1, rhex.length);
 
     return {
         s: shex,

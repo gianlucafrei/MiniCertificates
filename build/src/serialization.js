@@ -55,24 +55,38 @@ function deserializePublicKey(serializedKey) {
 }
 exports.deserializePublicKey = deserializePublicKey;
 function serializeSignature(signature) {
-    let obj = {
-        r: hexStringToBuffer(signature.r),
-        s: hexStringToBuffer(signature.s),
-        j: signature.j
-    };
-    var buffer = msgpack.encode(obj);
-    return bufferToHexString(buffer);
+    let s = signature.s;
+    let r = signature.r;
+    let j = signature.j;
+    if (s.length % 2 == 1)
+        s = '0' + s;
+    if (r.length % 2 == 1)
+        r = '0' + r;
+    if (s.length != r.length)
+        throw new Error('signature s has not the same length as r');
+    if (j > 4)
+        throw new Error('invalid singature j');
+    let hexstr = s + r;
+    hexstr += '0' + j;
+    return hexstr;
 }
 exports.serializeSignature = serializeSignature;
 function deserializeSignature(serializedSignature) {
-    var buffer = hexStringToBuffer(serializedSignature);
-    var obj = msgpack.decode(buffer);
-    var signature = {
-        r: bufferToHexString(obj.r),
-        s: bufferToHexString(obj.s),
-        j: obj.j
+    if (serializedSignature.length % 2 != 0)
+        throw new Error('invalid hex string');
+    let n = serializedSignature.length;
+    let shex = serializedSignature.substring(0, (n - 2) / 2);
+    let rhex = serializedSignature.substring((n - 2) / 2, (n - 2));
+    let jhex = serializedSignature.substring((n - 2), n);
+    if (shex[0] == '0')
+        shex = shex.substring(1, shex.length);
+    if (rhex[0] == '0')
+        rhex = rhex.substring(1, rhex.length);
+    return {
+        s: shex,
+        r: rhex,
+        j: parseInt(jhex, 16)
     };
-    return signature;
 }
 exports.deserializeSignature = deserializeSignature;
 //# sourceMappingURL=serialization.js.map
