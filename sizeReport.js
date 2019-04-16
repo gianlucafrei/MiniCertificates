@@ -1,4 +1,4 @@
-let minicert = require("./main");
+var minicert = require('./build/src/main.js');
 /*
     This script prints a simple report of the key and certificate sizes
     for different cipher suites.

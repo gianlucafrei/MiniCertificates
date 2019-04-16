@@ -1,5 +1,5 @@
 var minicert = require('./build/src/main.js');
-var mc = new minicert.MC('p256');
+var mc = new minicert('p256', minicert.insecureRandom);
 
 // Create key pair for the issuer of the certificate
 var caSecret = mc.newPrivateKey();
@@ -25,5 +25,5 @@ console.log("Signature value: " + signature);
 
 // Test the validity of the signature with the certificate
 var expectedUser = "pirate";
-var isValid = mc.verifySignature(expectedUser, message, signature, certificate, caPublic);
+var isValid = mc.verifySignatureWithCertificate(expectedUser, message, signature, certificate, caPublic);
 console.log("Is a valid signature: " + isValid);

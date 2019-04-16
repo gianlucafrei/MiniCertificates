@@ -9,36 +9,35 @@ MiniCertificates only support ECDSA keys. This is because when using ECDSA, you 
 ## How does it work
 Unlike a normal public key certificate, the key itself is not stored in a MiniCertificate. To verify the validity of a certificate, the verifier first needs to recover the public key from a signature, and can then check if the signature of the MiniCertificate is valid.
 
-## Quickstart
-
-```
-npm install gianlucafrei/MiniCertificates
-```
-
 ## Size of the certificate
 
 The size of the certificate depends on the cipher suite used and length of the username.
 This tables lists all supported suites and the sizes of the keys, signature and certificates in bytes.
 
-| Suite | Secret Key | Public Key | Certificate |
-|-------|------------|------------|-------------|
-| p192  | 24         | 24         | 84          |
-| p256  | 32         | 32         | 100         |
+| Suite | Secret Key | Public Key | Certificate | Singature |
++-------+------------+------------+-------------+-----------+
+| p192  | 24         | 24         | 84          | 49        |
+| p256  | 32         | 32         | 100         | 65        |
++-------+------------+------------+-------------+-----------+
 
-## How to use
+## How to use this library
+
+```
+npm install gianlucafrei/MiniCertificates
+```
 
 All inputs are strings.
 All outputs are hexdecimal numbers as strings.
 
 ```
-var minicert = require('minicertificates');
+var minicert = require('./build/src/main.js');
 var mc = new minicert('p256', minicert.insecureRandom);
 
 // Create key pair for the issuer of the certificate
 var caSecret = mc.newPrivateKey();
 var caPublic = mc.computePublicKeyFromPrivateKey(caSecret);
-console.log("CA secret: " + caSecret); // 6ed72ae2e...
-console.log("CA public: " + caPublic); // 7cb807cc3...
+console.log("CA secret: " + caSecret);
+console.log("CA public: " + caPublic);
 
 // Create key pair for user
 var userSecret = mc.newPrivateKey();
@@ -49,16 +48,15 @@ var username = "pirate";
 var validityStart = mc.now();
 var validityEnd = mc.plus(validityStart)
 var certificate = mc.signCertificate(username, userPublic, validityStart, validityEnd, caSecret);
-console.log("Certificate value: " + certificate); // 87a17600...
+console.log("Certificate value: " + certificate);
 
 // user signs a message
 var message = "This is a message";
 var signature = mc.sign(message, userSecret);
-console.log("Signature value: " + signature); // 83a172d9...
+console.log("Signature value: " + signature);
 
 // Test the validity of the signature with the certificate
 var expectedUser = "pirate";
-vat trustedCaPublicKeys = [caPublic]
-var isValid = mc.verifySignatureWithCertificate(expectedUser, message, signature, certificate, trustedCaPublicKeys);
-console.log("Is a valid signature: " + isValid); // true
+var isValid = mc.verifySignatureWithCertificate(expectedUser, message, signature, certificate, caPublic);
+console.log("Is a valid signature: " + isValid);
 ```

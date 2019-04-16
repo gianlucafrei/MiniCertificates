@@ -8,18 +8,18 @@ class Crypto {
         this.random = randomFunction;
     }
     ;
-    privateKeyFromSecret(secret) {
-        const keyPair = this.suite.ec.keyPair({ priv: secret });
-        const exponent = keyPair.getPrivate('hex');
-        return { x: exponent };
-    }
-    ;
     generatePrivateKey() {
         const entropy = this.random(this.suite.curvelenght);
         const key = this.suite.ec.genKeyPair({ entropy: entropy });
         const exponent = key.getPrivate('hex');
         return { x: exponent };
     }
+    privateKeyFromSecret(secret) {
+        const keyPair = this.suite.ec.keyPair({ priv: secret });
+        const exponent = keyPair.getPrivate('hex');
+        return { x: exponent };
+    }
+    ;
     publicFromPrivate(privateKey) {
         const keyPair = this.suite.ec.keyPair({ priv: privateKey.x });
         const pubPointAsString = this.canonizeCurvePoint(keyPair.getPublic());

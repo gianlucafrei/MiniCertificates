@@ -1,19 +1,7 @@
 import * as crypto from "./crypto";
 import * as suites from './suites';
 import * as serialization from './serialization';
-
-interface TimePeriod {
-    /* Time periods consists of two 32bit integers in unix time*/
-    start: number,
-    end: number
-}
-
-export interface Certificate {
-    version: number,
-    subject: string,
-    validity: TimePeriod,
-    signature: crypto.Signature
-}
+import { TimePeriod } from './timePeriod';
 
 /**
  * This is the only object a caller of this library should interact with.
@@ -30,7 +18,16 @@ export class MC {
     readonly suite: suites.Suite;
     readonly crypto: crypto.Crypto;
 
-    constructor(cryptoSuite: string, randomFunction: (number)=>number[]) {
+    /**
+     * Creates a new object to interact with the library.
+     * 
+     * @param cryptoSuite The name of the crypto suite (For example 'p192') as string.
+     * @param randomFunction
+     * This function is called for the generation of random numbers
+     * and should return a array of random bytes. The callback is called with one argument which
+     * is the number of needed bytes.
+     */
+    constructor(cryptoSuite: string, randomFunction: (number) => number[]) {
 
         switch (cryptoSuite) {
             case 'p192':
@@ -76,14 +73,14 @@ export class MC {
      * @param issuerPrivateKey The private key to sign the certificate
      */
     public signCertificate(
-        subjectName: string, 
+        subjectName: string,
         subjectPublicKey: string,
         validityStart: number,
         validityEnd: number,
         issuerPrivateKey: string,
     ): string {
 
-        const validity = {start: validityStart, end: validityEnd};
+        const validity = { start: validityStart, end: validityEnd };
 
         const pubKey = serialization.deserializePublicKey(subjectPublicKey);
         const privKey = serialization.deserializePrivateKey(issuerPrivateKey);
@@ -119,16 +116,16 @@ export class MC {
      * @param message The signed message
      * @param signature The signature for the message
      */
-    public recoverSignerPublicKey(message:string, signature:string){
+    public recoverSignerPublicKey(message: string, signature: string) {
 
         const sign = serialization.deserializeSignature(signature);
         const pk = this.crypto.recoverPublicKey(message, sign);
-        
+
         return serialization.serializePublicKey(pk);
 
     }
 
-    public verifySignatureWithPublicKey(message:string, signature:string, publicKey:string){
+    public verifySignatureWithPublicKey(message: string, signature: string, publicKey: string) {
 
         const sign = serialization.deserializeSignature(signature);
         const pk = serialization.deserializePublicKey(publicKey);
@@ -150,14 +147,14 @@ export class MC {
         signature: string,
         certificate: string,
         trustedCaPublicKeys: string[]
-    ) : boolean {
+    ): boolean {
 
         const sign = serialization.deserializeSignature(signature);
         const cert = serialization.deserializeCertificate(certificate);
 
         // if the now is not within the validity of the certificate we directly return false
         var now = this.now();
-        if(now < cert.validity.start || now > cert.validity.end)
+        if (now < cert.validity.start || now > cert.validity.end)
             return false;
 
         // Calculate the public key which verifies the signature
@@ -184,17 +181,22 @@ export class MC {
         signature: string,
         certificate: string,
         trustedCaPublicKeys: string[]
-    ){
+    ) {
 
         var claimedName = this.getUsernameOfCertificate(certificate);
         var isValid = this.verifySignatureWithCertificate(claimedName, message, signature, certificate, trustedCaPublicKeys);
-        if(isValid)
+        if (isValid)
             return claimedName;
         else
             return null;
     }
 
-    public getUsernameOfCertificate(certificate: string){
+    /**
+     * 
+     * @param certificate Returns the username contained in a certificate
+     * without validating it.
+     */
+    public getUsernameOfCertificate(certificate: string) {
 
         var cert = serialization.deserializeCertificate(certificate);
         return cert.subject;
@@ -204,7 +206,7 @@ export class MC {
      * Converts a javascript date to a unix timestamp
      * @param date The date to convert
      */
-    public dateToUnixTime(date:Date):number{
+    public dateToUnixTime(date: Date): number {
 
         return Math.floor(date.getTime() / 1000);
     }
@@ -212,11 +214,11 @@ export class MC {
     /**
      * Returns the current time as unix timestamp.
      */
-    public now() : number{
+    public now(): number {
 
         return this.dateToUnixTime(new Date());
     };
-    
+
     /**
      * Adds a time period to a unix timestamp
      * @param timestamp The unix timestamp to add the time period to
@@ -227,28 +229,27 @@ export class MC {
      * @param minutes Number of minutes to add
      * @param seconds Number seconds to add
      */
-    public plus(timestamp, years=0, months=0, days=0, hours=0, minutes=0, seconds=0)
-    {
+    public plus(timestamp, years = 0, months = 0, days = 0, hours = 0, minutes = 0, seconds = 0) {
         var date = new Date(timestamp * 1000);
-        
+
         date.setFullYear(date.getFullYear() + years);
         date.setMonth(date.getMonth() + months);
         date.setDate(date.getDate() + days);
         date.setHours(date.getHours() + hours);
         date.setMinutes(date.getMinutes() + minutes);
         date.setSeconds(date.getSeconds() + seconds);
-    
-        return this.dateToUnixTime(date); 
+
+        return this.dateToUnixTime(date);
     }
 
     /**
      * WARNING: This is not secure
-     * Generates n random bytes 
+     * Generates n random bytes. Can be used to test the library.
      * @param n 
      */
-    public static insecureRandom(n){
+    public static insecureRandom(n) {
 
-        return Array.from({length: n}, () => Math.floor(Math.random() * 256));
+        return Array.from({ length: n }, () => Math.floor(Math.random() * 256));
 
     }
 }
@@ -268,6 +269,5 @@ function canonicalizeCertificateData(
 
     return version + "+" + subjectName + "+" + subjectPublicKey.hash + "+" + validity.start + "+" + validity.end;
 }
-
 
 module.exports = MC;

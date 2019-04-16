@@ -1,5 +1,5 @@
 .vscode/
-
+doc/*
 # Logs
 logs
 *.log
